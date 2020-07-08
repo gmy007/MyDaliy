@@ -31,6 +31,11 @@ def log_parser(log_str):
 
 
 def consumers_q2c_parser(consumer_msg):
+    '''
+    通过httpApi得到consumer原始信息，解析出channel和queue的关系集合
+    :param consumer_msg:
+    :return: dict：{queue:[conn]}
+    '''
     consumer_dict = json.loads(consumer_msg)
     ret = {}
     for i in consumer_dict:
@@ -43,6 +48,11 @@ def consumers_q2c_parser(consumer_msg):
 
 
 def consumers_c2q_parser(consumer_msg):
+    '''
+    通过httpApi得到consumer原始信息，解析出channel和queue的关系集合
+    :param consumer_msg:
+    :return: dict：{conn:[queue]}
+    '''
     consumer_dict = json.loads(consumer_msg)
     ret = {}
     for i in consumer_dict:
@@ -55,6 +65,11 @@ def consumers_c2q_parser(consumer_msg):
 
 
 def bindings_api_parser(bindings_msg):
+    '''
+    通过httpApi得到的bindings原始信息，解析exchange和queue的关系集合
+    :param bindings_msg:
+    :return: {exchange_name:[queue]}
+    '''
     bindings_dict = json.loads(bindings_msg)
     ret = {}
     for binding in bindings_dict:
@@ -69,7 +84,7 @@ def bindings_api_parser(bindings_msg):
     return ret
 
 
-def get_service():
+def get_service(ip):
     return ''
 
 
@@ -79,6 +94,10 @@ connection [{ip:ip,port:port,service:service,routing_key:key},]
 
 
 def parser():
+    '''
+    得到初步解析好的bindings和consumer信息，解析出exchange和service对应关系
+    :return: [{'exchange_name':value,'connection':[{'ip':value,'port':value,'service':value}]}]
+    '''
     consumer_ret = consumers_q2c_parser(get_consumer_msg())
     print consumer_ret
     bindings_ret = bindings_api_parser(get_binding_msg())
@@ -88,10 +107,10 @@ def parser():
         cur = {}
         cur['exchange_name'] = exchange
         con = []
-        for q, r in v.items():
-            if q not in consumer_ret.keys():
+        for queue_name, r in v.items():
+            if queue_name not in consumer_ret.keys():
                 continue
-            con_name = consumer_ret[q]
+            con_name = consumer_ret[queue_name]
             for ip in con_name:
                 service = {}
                 service['ip'] = ip
@@ -106,6 +125,12 @@ def parser():
 
 
 def check_conn(con_list, service):
+    '''
+    判断当前得到的一组connection数据是否与exchange别的connection数据重复
+    :param con_list:
+    :param service:
+    :return: bool
+    '''
     for conn in con_list:
         if conn['ip'] == service['ip'] and conn['service'] == service['service'] \
                 and conn['routing_key'] == service['routing_key']:
@@ -113,11 +138,11 @@ def check_conn(con_list, service):
     return False
 
 
-def strategy_parser():
-    pass
-
-
 def mongoDB_save():
+    '''
+    最后解析出的数据存入mongoDB
+    :return:
+    '''
     connect('pytest', host='127.0.0.1', port=27017)
     parser_ret = parser()
     for i in parser_ret:
@@ -140,9 +165,69 @@ def judge_service(consumer_msg):
     pass
 
 
+def strategy_parser():
+    consumer_ret = consumers_q2c_parser(get_consumer_msg())
+    print consumer_ret
+    bindings_ret = bindings_api_parser(get_binding_msg())
+    print bindings_ret
+    result = []
+    for exchange, v in bindings_ret.items():
+        cur = {}
+        cur['exchange_name'] = exchange
+        cur_strategy = get_strategy(v, consumer_ret)
+        cur['service'] = cur_strategy
+        result.append(cur)
+    return result
+
+
+def get_strategy(queue_list, consumer_ret):
+    '''
+    通过得到的当前exchange对应的队列集合和所有消费者信息，
+    来获取当前exchange上服务对应的策略
+    :param queue_list:当前exchange对应所有queue
+    :param consumer_ret:所有consumer信息
+    :return: list：[{service_name:value, strategy:value}]
+    '''
+    if len(queue_list) == 0:
+        return []
+    ret = []
+    all_channel = []
+    exclusive_channel = []
+    for queue_name in queue_list:
+        if queue_name in consumer_ret.keys():
+            exclusive_channel = consumer_ret[queue_name]
+            break
+    for queue_name in queue_list:
+        if queue_name not in consumer_ret.keys():
+            continue
+        conn_list = consumer_ret[queue_name]
+        all_channel = list(set(all_channel).union(set(conn_list)))
+        for conn in exclusive_channel:
+            if conn not in conn_list:
+                exclusive_channel.remove(conn)
+    # print all_channel
+    # print exclusive_channel
+    cur_dict = {}
+    for channel in all_channel:
+        service = get_service(channel)
+        if service in cur_dict.keys() and cur_dict[service] == 'Exclusive':
+            continue
+        if channel in exclusive_channel:
+            cur_dict[service] = 'Exclusive'
+        else:
+            cur_dict[service] = 'Share'
+    for k, v in cur_dict.items():
+        cur = {}
+        cur['service_name'] = k
+        cur['strategy'] = v
+        ret.append(cur)
+    return ret
+
+
 if __name__ == '__main__':
     # mongoDB_save()
     # pprint.pprint(consumers_api_c2q_parser(get_consumer_msg()))
     # consumer_c2q_msg = consumers_c2q_parser(get_consumer_msg())
     # judge_service(consumer_c2q_msg)
-    parser()
+    # parser()
+    strategy_parser()
