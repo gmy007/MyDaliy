@@ -1,0 +1,5 @@
+2020-06-12 15:37:47,298 - mainModule.sub - INFO - This is sub logger
+2020-06-12 15:39:57,249 - mainModule.sub - INFO - This is sub logger
+2020-06-12 15:40:23,342 - mainModule.sub - INFO - This is sub logger
+2020-06-12 15:44:45,063 - mainModule.sub - INFO - This is sub logger
+2020-06-12 15:44:45,063 - mainModule.sub - WARNING - 用户输入信息有误：<type 'list'>

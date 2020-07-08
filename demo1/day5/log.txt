@@ -1,0 +1,26 @@
+2020-06-12 14:32:17,757 __main__  WARNING : 123
+2020-06-12 14:32:17,757 __main__  INFO    : Start print log
+2020-06-12 14:32:17,757 __main__  DEBUG   : Do something
+2020-06-12 14:32:17,757 __main__  WARNING : Something maybe fail.
+2020-06-12 14:32:17,757 __main__  INFO    : Finish
+2020-06-12 14:58:43,772 __main__  WARNING : 123
+2020-06-12 14:58:43,772 __main__  INFO    : Start print log
+2020-06-12 14:58:43,772 __main__  DEBUG   : Do something
+2020-06-12 14:58:43,772 __main__  WARNING : Something maybe fail.
+2020-06-12 14:58:43,773 __main__  INFO    : Finish
+2020-06-12 14:58:47,503 __main__  WARNING : 123
+2020-06-12 14:58:47,503 __main__  INFO    : Start print log
+2020-06-12 14:58:47,503 __main__  DEBUG   : Do something
+2020-06-12 14:58:47,503 __main__  WARNING : Something maybe fail.
+2020-06-12 14:58:47,503 __main__  INFO    : Finish
+2020-06-12 14:58:52,237 __main__  WARNING : 123
+2020-06-12 14:58:52,237 __main__  INFO    : Start print log
+2020-06-12 14:58:52,237 __main__  DEBUG   : Do something
+2020-06-12 14:58:52,237 __main__  WARNING : Something maybe fail.
+2020-06-12 14:58:52,237 __main__  INFO    : Finish
+2020-06-12 15:18:28,607 __main__  WARNING : 123
+2020-06-12 15:18:28,607 __main__  INFO    : Start print log
+2020-06-12 15:18:28,607 __main__  DEBUG   : Do something
+2020-06-12 15:18:28,607 __main__  WARNING : Something maybe fail.
+2020-06-12 15:18:28,607 __main__  INFO    : Finish
+2020-06-12 15:36:38,542 - mainModule.sub - INFO - This is sub logger

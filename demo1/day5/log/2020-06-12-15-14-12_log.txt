@@ -1,0 +1,3 @@
+Start print log
+Something maybe fail.
+Finish

@@ -1,0 +1,8 @@
+2020-06-12 15:25:48,826 __main__  INFO    : Start print log
+2020-06-12 15:25:48,826 __main__  WARNING : Something maybe fail.
+2020-06-12 15:25:48,826 __main__  ERROR   : Thear are some Exceptions 
+Traceback (most recent call last):
+  File "D:/PYworkspace/demo1/day5/log_test.py", line 47, in fun2
+    raise Exception
+Exception
+2020-06-12 15:25:48,826 __main__  INFO    : Finish
